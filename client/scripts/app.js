@@ -1,6 +1,6 @@
 // YOUR CODE HERE:
 var app = {};
-app.server = 'https://api.parse.com/1/classes/chatterbox';
+app.server = 'http://127.0.0.1:3000';
 
 var lastDate = 0;
 var openRooms = {};
@@ -15,7 +15,7 @@ app.init = function(){
 app.send = function(message){
   $.ajax({
     // always use this url
-    url: this.server,
+    url: app.server + '/sendmessage',
     type: 'POST',
     data: JSON.stringify(message),
     contentType: 'application/json',
@@ -40,7 +40,7 @@ app.fetch = function(){
       //where : "createdAt:{'$gte':lastDate}"
     },
     success: function (data) {
-      // console.log(data);
+      //console.log(data);
       app.update(data);
       console.log('chatterbox: Message received');
     },
@@ -102,13 +102,11 @@ app.update = function(data) {
         userName.click(function(){
           friends[name] = true;
         });
-        console.log(friends);
         if (currentRoom === null || currentRoom === room){
           var $holder = $('<div class="chatBox"></div>');
           $holder.append(userName);
           $holder.append(text);
           $('#chats').append($holder);
-          console.log('hi');
         }
       }
     }
@@ -126,7 +124,8 @@ setInterval(app.room, 1000);
 //submit
 $(document).ready(function(){
   $('#submit').on('click', function(e) {
-      var name = window.location.search.slice(10);
+      console.log('clicked');
+      var name = "Whatever"; //window.location.search.slice(10);
       var text = $("#message").val();
       var roomput = $("#roomput").val();
       if (currentRoom !== null){
@@ -137,9 +136,9 @@ $(document).ready(function(){
         'text': text,
         'roomname': roomput
       };
+      console.log(message);
       app.addMessage(message);
       $("#message, #roomput").val("");
-      //console.log(message);
       e.preventDefault();
       //e.stopPropagation();
   });
