@@ -1,5 +1,6 @@
 /* Import node's http module: */
 var req = require("./request-handler.js");
+var fs = require("fs");
 var express = require("express");
 var bodyParser = require("body-parser");
 
@@ -8,8 +9,15 @@ var http = require("http").Server(app);
 var router = express.Router();
 app.use(router);
 
-
 var messages = {results:[]};
+
+var log = fs.readFile('server/messages.json', function(err, data) {
+  if (data.length > 0) {
+    messages = JSON.parse(data);
+  }
+});
+
+
 
 // Every server needs to listen on a port with a unique number. The
 // standard port for HTTP servers is port 80, but that port is
@@ -34,7 +42,6 @@ router.post('/sendmessage', function(req, res, next){
 
   req.on('data', function(chunk){
     data += chunk;
-    console.log('running');
   });
 
   req.on('end', function(){
@@ -42,7 +49,10 @@ router.post('/sendmessage', function(req, res, next){
     next();
     var parsed = JSON.parse(req.body);
     messages.results.push(parsed);
-    console.log(messages);
+    var save = JSON.stringify(messages);
+    fs.writeFile('server/messages.json', save, function(){
+      console.log('runs');
+    });
   });
 
   // send back code on response
