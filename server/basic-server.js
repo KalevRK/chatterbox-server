@@ -9,6 +9,7 @@ var router = express.Router();
 app.use(router);
 
 
+var messages = {results:[]};
 
 // Every server needs to listen on a port with a unique number. The
 // standard port for HTTP servers is port 80, but that port is
@@ -28,8 +29,29 @@ app.get('/', function(req, res) {
   res.sendFile('client/index.html', {'root': './'});
 });
 
-router.post('/sendmessage', function(req, res){
-  console.log('hi');
+router.post('/sendmessage', function(req, res, next){
+  var data = '';
+
+  req.on('data', function(chunk){
+    data += chunk;
+    console.log('running');
+  });
+
+  req.on('end', function(){
+    req.body = data;
+    next();
+    var parsed = JSON.parse(req.body);
+    messages.results.push(parsed);
+    console.log(messages);
+  });
+
+  // send back code on response
+  res.writeHead(200, req.defaultCorsHeaders);
+  res.end('sent');
+});
+
+router.get('/getmessages', function(req, res){
+  res.send(messages);
 });
 
 app.get('/styles/styles.css', function(req, res) {
